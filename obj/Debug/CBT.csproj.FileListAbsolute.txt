@@ -1,0 +1,12 @@
+C:\Users\work\Desktop\ForBrit\ForBrit\RunningDatabase\CBT\CBT\bin\Debug\CBT.exe.config
+C:\Users\work\Desktop\ForBrit\ForBrit\RunningDatabase\CBT\CBT\bin\Debug\CBT.exe
+C:\Users\work\Desktop\ForBrit\ForBrit\RunningDatabase\CBT\CBT\bin\Debug\CBT.pdb
+C:\Users\work\Desktop\ForBrit\ForBrit\RunningDatabase\CBT\CBT\obj\Debug\CBT.csprojResolveAssemblyReference.cache
+C:\Users\work\Desktop\ForBrit\ForBrit\RunningDatabase\CBT\CBT\obj\Debug\CBT.exe
+C:\Users\work\Desktop\ForBrit\ForBrit\RunningDatabase\CBT\CBT\obj\Debug\CBT.pdb
+C:\Users\work\Desktop\CBT\CBT\bin\Debug\CBT.exe.config
+C:\Users\work\Desktop\CBT\CBT\obj\Debug\CBT.exe
+C:\Users\work\Desktop\CBT\CBT\obj\Debug\CBT.pdb
+C:\Users\work\Desktop\CBT\CBT\bin\Debug\CBT.exe
+C:\Users\work\Desktop\CBT\CBT\bin\Debug\CBT.pdb
+C:\Users\work\Desktop\CBT\CBT\obj\Debug\CBT.csprojResolveAssemblyReference.cache
