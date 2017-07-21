@@ -30,7 +30,6 @@ namespace CBT
         public XElement behaviours { get; set; }
         public XElement countElement { get; set; }
 
-
         #endregion
     }
 }
