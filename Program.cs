@@ -2,7 +2,6 @@
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 
 namespace CBT
@@ -13,7 +12,7 @@ namespace CBT
         static void Main()
         {
             Console.Title = "CBT";
-            Console.SetWindowSize(100, 40);
+            Console.SetWindowSize(110, 55);
             Console.WriteLine();
             Console.WriteLine("Situations database for cognitive behavioral therapy");
             Console.WriteLine();
@@ -24,7 +23,7 @@ namespace CBT
             Console.WriteLine("Press M/m to add 'meta-cognition' to your thoughts/feelings");
             Console.WriteLine("(thoughts/feelings about your thoughts/feelings) in a situation");
             Console.WriteLine();
-            Console.WriteLine("Press V/v to view everything about a situation");
+            Console.WriteLine("Press V/v to view all the information you entered about a situation");
             Console.WriteLine();
             string input = Console.ReadLine();
             Elements elements = new Elements();
@@ -85,6 +84,7 @@ namespace CBT
             }
             else if (input.ToUpper() == "V")
             {
+                ChoosingSitToView(elements);
             }
             else
             {
@@ -95,7 +95,61 @@ namespace CBT
 
         #endregion
 
+        #region No feelings/thoughts message
+
+        private static void NoInfo(string forFilling, bool isMeta)
+        {
+            Console.Clear();
+            Console.WriteLine();
+            Console.WriteLine($"No {forFilling}s found for this situation");
+            Console.WriteLine();
+            if (isMeta)
+            {
+                Console.WriteLine($"Add at least 1 {forFilling} that arises in this situation first,");
+                Console.WriteLine($"So you can add {forFilling}s about every {forFilling}!");
+                Console.WriteLine();
+            }
+            Console.WriteLine("Press any key to return to the main meun");
+            Console.WriteLine();
+            Console.ReadLine();
+            Console.Clear();
+            Main();
+        }
+
+        #endregion
+
         #region Just checking input
+
+        private static string CheckingScrolling(string input, bool withoutMeta)
+        {
+            if (!withoutMeta)
+            {
+                if (input.ToUpper() != "N" && input.ToUpper() != "P" && input.ToUpper() != "T")
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("Irrelevant input. Either N/n or P/p or T/t. Input again:");
+                    Console.WriteLine();
+                    input = Console.ReadLine();
+                    CheckingScrolling(input, withoutMeta);
+                    Console.WriteLine();
+                }
+            }
+            else
+            {
+                if (input.ToUpper() != "N" && input.ToUpper() != "P")
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("Irrelevant input. Input Either N/n or P/p. There's no meta-cognition here.");
+                    Console.WriteLine("(Thought if this information isn't about behaviours, you can add meta-cognition to it)");
+                    Console.WriteLine("Input again:");
+                    Console.WriteLine();
+                    input = Console.ReadLine();
+                    CheckingScrolling(input, withoutMeta);
+                    Console.WriteLine();
+                }
+            }
+            return input;
+        }
 
         static void ReturnToMain(string input)
         {
@@ -132,6 +186,68 @@ namespace CBT
                 Console.WriteLine();
             }
             return input;
+        }
+
+        #endregion
+
+        #region Choosing a situation to add info
+
+        static void ChoosingSitToAddInfo(Elements elements)
+        {
+            Console.Clear();
+            if (elements.situations.Nodes().Count() == 1)
+            {
+                Console.WriteLine();
+                Console.WriteLine("No situations found.");
+                Console.WriteLine();
+                Console.WriteLine("Press any key to return to the main meun");
+                Console.WriteLine();
+                Console.ReadLine();
+                ReturnToMain("m");
+            }
+            else
+            {
+                Console.WriteLine();
+                Console.WriteLine("Press M/m to return to the main meun (at any point)");
+                Console.WriteLine();
+                Console.WriteLine("Press the number of the situation you wish to add information to:");
+                Console.WriteLine();
+                string[] situationText;
+                int theCount = int.Parse(elements.actualCount.Value);
+                for (int i = 0; i <= theCount; i++)
+                {
+                    if (File.Exists($@"situation{i}.txt"))
+                    {
+                        situationText = File.ReadAllLines($@"situation{i}.txt");
+                        Console.WriteLine($"{situationText[1]} (situation number {i})");
+                        Console.WriteLine();
+                    }
+                }
+                string input2 = Console.ReadLine();
+                input2 = CheckValidNumInput(input2);
+                ReturnToMain(input2);
+                for (int i = 1; i <= theCount; i++)
+                {
+                    if (int.Parse(input2) == i)
+                    {
+                        situationText = File.ReadAllLines($@"situation{i}.txt");
+                        EnteringInformation(situationText, i, "thought");
+                        situationText = SituationFile(situationText, i);
+                        EnteringInformation(situationText, i, "feeling");
+                        situationText = SituationFile(situationText, i);
+                        EnteringInformation(situationText, i, "behaviour");
+                        Console.Clear();
+                        Console.WriteLine();
+                        Console.WriteLine("You're done!");
+                        Console.WriteLine("Press any key to return to the main meun");
+                        Console.WriteLine();
+                        Console.ReadLine();
+                        Console.Clear();
+                        Main();
+                    }
+                }
+                ChoosingSitToAddInfo(elements);
+            }
         }
 
         #endregion
@@ -264,55 +380,6 @@ namespace CBT
 
         #endregion
 
-        #region Choosing a situation to add info
-
-        static void ChoosingSitToAddInfo(Elements elements)
-        {
-            Console.Clear();
-            Console.WriteLine();
-            Console.WriteLine("Press M/m to return to the main meun (at any point)");
-            Console.WriteLine();
-            Console.WriteLine("Press the number of the situation you wish to add information to:");
-            Console.WriteLine();
-            string[] situationText;
-            int theCount = int.Parse(elements.actualCount.Value);
-            for (int i = 0; i <= theCount; i++)
-            {
-                if (File.Exists($@"situation{i}.txt"))
-                {
-                    situationText = File.ReadAllLines($@"situation{i}.txt");
-                    Console.WriteLine($"{situationText[1]} (situation number {i})");
-                    Console.WriteLine();
-                }
-            }
-            string input2 = Console.ReadLine();
-            input2 = CheckValidNumInput(input2);
-            ReturnToMain(input2);
-            for (int i = 1; i <= theCount; i++)
-            {
-                if (int.Parse(input2) == i)
-                {
-                    situationText = File.ReadAllLines($@"situation{i}.txt");
-                    EnteringInformation(situationText, i, "thought");
-                    situationText = SituationFile(situationText, i);
-                    EnteringInformation(situationText, i, "feeling");
-                    situationText = SituationFile(situationText, i);
-                    EnteringInformation(situationText, i, "behaviour");
-                    Console.Clear();
-                    Console.WriteLine();
-                    Console.WriteLine("You're done!");
-                    Console.WriteLine("Press any key to return to the main meun");
-                    Console.WriteLine();
-                    Console.ReadLine();
-                    Console.Clear();
-                    Main();
-                }
-            }
-            ChoosingSitToAddInfo(elements);
-        }
-
-        #endregion
-
         #region Updating situation file
 
         static string[] SituationFile(string[] file, int i)
@@ -328,46 +395,60 @@ namespace CBT
         private static void AddingMetaCognition(Elements elements)
         {
             Console.Clear();
-            Console.WriteLine();
-            Console.WriteLine("Press M/m to return to the main meun (at any point)");
-            Console.WriteLine();
-            Console.WriteLine("Press the number of the situation you wish to add meta-cogntition to:");
-            Console.WriteLine();
-            string[] situationText;
-            int theCount = int.Parse(elements.actualCount.Value);
-            for (int i = 0; i <= theCount; i++)
+            if (elements.situations.Nodes().Count() == 1)
             {
-                if (File.Exists($@"situation{i}.txt"))
-                {
-                    situationText = File.ReadAllLines($@"situation{i}.txt");
-                    Console.WriteLine($"{situationText[1]} (situation number {i})");
-                    Console.WriteLine();
-                }
+                Console.WriteLine();
+                Console.WriteLine("No situations found.");
+                Console.WriteLine();
+                Console.WriteLine("Press any key to return to the main meun");
+                Console.WriteLine();
+                Console.ReadLine();
+                ReturnToMain("m");
             }
-            string input2 = Console.ReadLine();
-            input2 = CheckValidNumInput(input2);
-            ReturnToMain(input2);
-            for (int i = 1; i <= theCount; i++)
+            else
             {
-                if (int.Parse(input2) == i)
+                Console.WriteLine();
+                Console.WriteLine("Press M/m to return to the main meun (at any point)");
+                Console.WriteLine();
+                Console.WriteLine("Press the number of the situation you wish to add meta-cogntition to:");
+                Console.WriteLine();
+                string[] situationText;
+                int theCount = int.Parse(elements.actualCount.Value);
+                for (int i = 0; i <= theCount; i++)
                 {
-                    situationText = File.ReadAllLines($@"situation{i}.txt");
-                    ChoosingMetaCognition(situationText, i);
-                    Console.Clear();
-                    Console.WriteLine();
-                    Console.WriteLine("You're done!");
-                    Console.WriteLine("Press any key to return to the main meun");
-                    Console.WriteLine();
-                    Console.ReadLine();
-                    Console.Clear();
-                    Main();
+                    if (File.Exists($@"situation{i}.txt"))
+                    {
+                        situationText = File.ReadAllLines($@"situation{i}.txt");
+                        Console.WriteLine($"{situationText[1]} (situation number {i})");
+                        Console.WriteLine();
+                    }
                 }
+                string input2 = Console.ReadLine();
+                input2 = CheckValidNumInput(input2);
+                ReturnToMain(input2);
+                for (int i = 1; i <= theCount; i++)
+                {
+                    if (int.Parse(input2) == i)
+                    {
+                        situationText = File.ReadAllLines($@"situation{i}.txt");
+                        ChoosingMetaCognition(situationText, i);
+                        Console.Clear();
+                        Console.WriteLine();
+                        Console.WriteLine("You're done!");
+                        Console.WriteLine("Press any key to return to the main meun");
+                        Console.WriteLine();
+                        Console.ReadLine();
+                        Console.Clear();
+                        Main();
+                    }
+                }
+                AddingMetaCognition(elements);
             }
-            AddingMetaCognition(elements);
         }
 
         private static void ChoosingMetaCognition(string[] situationText, int i)
         {
+            SituationElements elements = new SituationElements();
             string ForFilling = "";
             string[] allInfo = File.ReadAllLines($"situation{i}.txt");
             IEnumerable<string> numOfInfo = new List<string>();
@@ -388,15 +469,25 @@ namespace CBT
             }
             else if (metaChoice.ToUpper() == "F")
             {
+                ForFilling = "feeling";
+                elements.feelings = new XElement(elements.allSituations.ElementAt(i - 1).Element("feelings"));
+                if(!elements.feelings.HasElements)
+                {
+                    NoInfo(ForFilling, true);
+                }
                 allInfo = File.ReadAllLines($"{situationText[1]}feeling.txt");
                 numOfInfo = allInfo.Where(line => line == "A feeling that arises in the situation: ");
-                ForFilling = "feeling";
             }
             else if (metaChoice.ToUpper() == "T")
             {
+                ForFilling = "thought";
+                elements.thoughts = new XElement(elements.allSituations.ElementAt(i - 1).Element("thoughts"));
+                if(!elements.thoughts.HasElements)
+                {
+                    NoInfo(ForFilling, true);
+                }
                 allInfo = File.ReadAllLines($"{situationText[1]}thought.txt");
                 numOfInfo = allInfo.Where(line => line == "A thought that arises in the situation: ");
-                ForFilling = "thought";
             }
 
             int infoAmount = numOfInfo.Count();
@@ -490,7 +581,7 @@ namespace CBT
 
                     if (string.IsNullOrEmpty(notes))
                     {
-                        inputForMetaCognition[6 + ((i - 1) * 8)] = "{none}";
+                        inputForMetaCognition[6 + ((i - 1) * 8)] = "{no note}";
                     }
                     else
                     {
@@ -651,6 +742,410 @@ namespace CBT
                 }
             }
         }
+        #endregion
+
+        #region Choosing situation to view it
+
+        private static void ChoosingSitToView(Elements elements)
+        {
+            Console.Clear();
+            if (elements.situations.Nodes().Count() == 1)
+            {
+                Console.WriteLine();
+                Console.WriteLine("No situations found.");
+                Console.WriteLine();
+                Console.WriteLine("Press any key to return to the main meun");
+                Console.WriteLine();
+                Console.ReadLine();
+                ReturnToMain("m");
+            }
+            else
+            {
+                Console.WriteLine();
+                Console.WriteLine("Press M/m to return to the main meun (at any point)");
+                Console.WriteLine();
+                Console.WriteLine("Press the number of the situation you wish to view its information:");
+                Console.WriteLine();
+                string[] situationText = new string[1];
+                int theCount = int.Parse(elements.actualCount.Value);
+                for (int i = 0; i <= theCount; i++)
+                {
+                    if (File.Exists($@"situation{i}.txt"))
+                    {
+                        situationText = File.ReadAllLines($@"situation{i}.txt");
+                        Console.WriteLine($"{situationText[1]} (situation number {i})");
+                        Console.WriteLine();
+                    }
+                }
+                string input2 = Console.ReadLine();
+                input2 = CheckValidNumInput(input2);
+                ReturnToMain(input2);
+                for (int i = 1; i <= theCount; i++)
+                {
+                    if (int.Parse(input2) == i)
+                    {
+                        string info = ChoosingInfoToView(elements, i);
+                        Console.Clear();
+                        Console.WriteLine($"You've finished going throught the {info}s of the situation:");
+                        Console.WriteLine($"{situationText[1]}");
+                        Console.WriteLine();
+                        Console.WriteLine("Press any key to return to the main meun.");
+                        Console.WriteLine();
+                        Console.ReadLine();
+                        Console.Clear();
+                        Main();
+                    }
+                }
+                ChoosingSitToView(elements);
+            }
+        }
+
+        #endregion
+
+        #region Choosing which info about a situation to view
+
+        private static string ChoosingInfoToView(Elements elements, int situationNum)
+        {
+            Console.Clear();
+            Console.WriteLine();
+            Console.WriteLine("Press M/m to return to the main meun (at any point)");
+            Console.WriteLine();
+
+            string[] BasicSituation = File.ReadAllLines($@"situation{situationNum}.txt");
+            for(int i = 0; i < BasicSituation.Count(); i++)
+            {
+                if (i == 4 && string.IsNullOrEmpty(BasicSituation[i]))
+                {
+                    Console.WriteLine("{no notes about this situation}");
+                }
+                else
+                {
+                    Console.WriteLine($@"{BasicSituation[i]}");
+                }
+            }
+
+            SituationElements upDatedElements = new SituationElements();
+            string ForFilling = "";
+            string[] allInfo = new string[1];
+            IEnumerable<string> numOfInfo = new List<string>();
+
+            Console.WriteLine("Do you want to view thoughts, or feelings, or behaviours, that arise in this situation?");
+            Console.WriteLine("(Press T/t to view thoughts, or F/f to view feelings, or B/b to view behaviours)");
+            Console.WriteLine();
+            string viewChoice = Console.ReadLine();
+            ReturnToMain(viewChoice);
+            if (viewChoice.ToUpper() != "F" && viewChoice.ToUpper() != "T" && viewChoice.ToUpper() != "B")
+            {
+                ChoosingInfoToView(elements, situationNum);
+            }
+            else if (viewChoice.ToUpper() == "F")
+            {
+                ForFilling = "feeling";
+                upDatedElements.feelings = new XElement(upDatedElements.allSituations.ElementAt(situationNum - 1).Element("feelings"));
+                if (!upDatedElements.feelings.HasElements)
+                {
+                    NoInfo(ForFilling, false);
+                }
+                allInfo = File.ReadAllLines($"{BasicSituation[1]}feeling.txt");
+                numOfInfo = allInfo.Where(line => line == "A feeling that arises in the situation: ");
+            }
+            else if (viewChoice.ToUpper() == "T")
+            {
+                ForFilling = "thought";
+                upDatedElements.thoughts = new XElement(upDatedElements.allSituations.ElementAt(situationNum - 1).Element("thoughts"));
+                if (!upDatedElements.thoughts.HasElements)
+                {
+                    NoInfo(ForFilling, false);
+                }
+                allInfo = File.ReadAllLines($"{BasicSituation[1]}thought.txt");
+                numOfInfo = allInfo.Where(line => line == "A thought that arises in the situation: ");
+            }
+            else if(viewChoice.ToUpper() == "B")
+            {
+                ForFilling = "behaviour";
+                upDatedElements.behaviours = new XElement(upDatedElements.allSituations.ElementAt(situationNum - 1).Element("behaviours"));
+                if (!upDatedElements.behaviours.HasElements)
+                {
+                    NoInfo(ForFilling, false);
+                }
+                allInfo = File.ReadAllLines($"{BasicSituation[1]}behaviour.txt");
+                numOfInfo = allInfo.Where(line => line == "A behaviour that arises in the situation: ");
+            }
+
+            int infoAmount = numOfInfo.Count();
+
+            ViewingInfo(BasicSituation, allInfo, infoAmount, ForFilling, situationNum);
+
+            return ForFilling;
+        }
+
+        #endregion
+
+        #region Viewing info
+
+        private static void ViewingInfo(string[] BasicSituation, string[] allInfo, int infoAmount, string ForFilling, int situationNum)
+        {
+          
+            #region possible usefull variables
+
+            SituationElements elements = new SituationElements();
+            XElement CurrectSituation = new XElement(elements.allSituations.ElementAt(situationNum - 1));
+            elements.thoughts = new XElement(CurrectSituation.Element("thoughts"));
+            elements.feelings = new XElement(CurrectSituation.Element("feelings"));
+            elements.behaviours = new XElement(CurrectSituation.Element("behaviours"));
+            XElement relevantMetaCount = new XElement(XName.Get("fgf"));
+            XElement path = new XElement(XName.Get("fgd"));
+            if (ForFilling == "thought")
+            {
+                relevantMetaCount = new XElement(elements.thoughts.Element("MetaCount"));
+                path = new XElement(elements.thoughts.Element("Path"));
+            }
+            else if (ForFilling == "feeling")
+            {
+                relevantMetaCount = new XElement(elements.feelings.Element("MetaCount"));
+                path = new XElement(elements.feelings.Element("Path"));
+            }
+
+            #endregion
+
+            int countingLines = 0;
+            for (int i = 1; i <= infoAmount; i++)
+            {
+                Console.Clear();
+                Console.WriteLine();
+                Console.WriteLine("Press M/m to return to the main meun (at any point)");
+                Console.WriteLine();
+                Console.WriteLine($"Situation name: {BasicSituation[1]}");
+                Console.WriteLine();
+
+                for (int y = 0; y < 7; y++)
+                {
+                    if (countingLines <= allInfo.Count() - 1)
+                    {
+                        if (y == 6 && string.IsNullOrEmpty(allInfo[countingLines]))
+                        {
+                            Console.WriteLine("{no note}");
+                        }
+                        else
+                        {
+                            Console.WriteLine(allInfo[countingLines]);
+                        }
+                        countingLines++;
+                    }
+                }
+                countingLines++;
+
+                #region Putting all the meta-cognitive shit into a list
+
+                List<string[]> allMetaForThis = new List<string[]>();
+                int metaCountForRecent = 0;
+
+                if (ForFilling != "behaviour" && int.Parse(relevantMetaCount.Value) > 0)
+                {
+
+                    for (int z = 1; z <= int.Parse(relevantMetaCount.Value); z++)
+                    {
+                        if (File.Exists($@"{BasicSituation[1]}{ForFilling}{z}meta.txt"))
+                        {
+                            string[] checkedMetaFile = File.ReadAllLines($@"{BasicSituation[1]}{ForFilling}{z}meta.txt");
+                            for (int c = 0; c < checkedMetaFile.Count(); c++)
+                            {
+                                if (checkedMetaFile[c].Contains($@"a meta-cognition ({ForFilling}) about the above {ForFilling}:"))
+                                {
+                                    if (c == 0)
+                                    {
+                                        metaCountForRecent = 1;
+                                    }
+                                    else
+                                    {
+                                        metaCountForRecent = 1 + (c / 8);
+                                    }
+                                    if (metaCountForRecent == i)
+                                    {
+                                        allMetaForThis.Add(checkedMetaFile);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                #endregion
+
+                if (ForFilling != "behaviour" && int.Parse(relevantMetaCount.Value) > 0 && allMetaForThis.Count > 0)
+                {
+                    Console.WriteLine();
+                    Console.WriteLine($"Press T/t to view {ForFilling}/s about this {ForFilling} (meta-cognition).");
+                }
+                
+                Console.WriteLine();
+                Console.WriteLine($"Press N/n to go read the next {ForFilling} for this situation,");
+                Console.WriteLine($"Or P/p to go read the previous {ForFilling} for this situation.");
+                Console.WriteLine();
+                string nextInput = Console.ReadLine();
+                ReturnToMain(nextInput);
+                bool WithoutMeta = ((ForFilling == "behaviour") || int.Parse(relevantMetaCount.Value) == 0 || allMetaForThis.Count == 0);
+                nextInput = CheckingScrolling(nextInput, WithoutMeta);
+
+                if(nextInput.ToUpper() == "P")
+                {
+                    if(i == 1)
+                    {
+                        Console.Clear();
+                        Main();
+                    }
+                    else
+                    {
+                        i = i - 2;
+                        countingLines = countingLines - 16;
+                    }
+                }
+                else if(nextInput.ToUpper() == "T")
+                {
+                    #region meta-cognition info scroll
+
+                    if (!WithoutMeta)
+                    {
+                        ViewingMetaCognitionsForEachInfo(BasicSituation, countingLines, allInfo, allMetaForThis, ForFilling);
+                    }
+                    else
+                    {
+                        Console.Clear();
+                        Console.WriteLine("An error has occured.");
+                        Console.WriteLine("Press any key to return to the main meun");
+                        Console.ReadLine();
+                        Main();
+                    }
+
+                    #endregion
+                }
+                else if(nextInput.ToUpper() == "N")
+                {
+                    if(i == infoAmount)
+                    {
+                        Console.Clear();
+                        Console.WriteLine();
+                        Console.WriteLine($"You've finished going throught all the {ForFilling}s of the current situation.");
+                        Console.WriteLine();
+                        Console.WriteLine("Press any key to return to the main meun");
+                        Console.WriteLine();
+                        Console.ReadLine();
+                        Console.Clear();
+                        Main();
+                    }
+                }
+                
+            }
+        }
+
+        #endregion
+
+        #region viewing meta cognition
+
+        private static void ViewingMetaCognitionsForEachInfo(string[] BasicSituation, int countingLines, string[] allInfo, List<string[]> allMetaForThis, string ForFilling)
+        {
+            
+            int writing = 0;
+            for (int m = 0; m < allMetaForThis.Count; m++)
+            {
+
+                #region Writing the info itself
+
+                countingLines = countingLines - 8;
+                Console.Clear();
+                Console.WriteLine();
+                Console.WriteLine("Press M/m to return to the main meun (at any point)");
+                Console.WriteLine();
+                Console.WriteLine($"Situation name: {BasicSituation[1]}");
+                Console.WriteLine();
+
+                for (int y = 0; y < 7; y++)
+                {
+                    if (countingLines <= allInfo.Count() - 1)
+                    {
+                        if (y == 6 && string.IsNullOrEmpty(allInfo[countingLines]))
+                        {
+                            Console.WriteLine("{no note}");
+                        }
+                        else
+                        {
+                            Console.WriteLine(allInfo[countingLines]);
+                        }
+                        countingLines++;
+                    }
+                }
+                countingLines++;
+
+                #endregion
+
+                Console.WriteLine();
+                for (int line = 0; line < allMetaForThis[m].Count(); line++)
+                {
+                    if (allMetaForThis[m].ElementAt(line) == $@"a meta-cognition ({ForFilling}) about the above {ForFilling}:")
+                    {
+                        writing = line;
+                    }
+
+                }
+                for (int forWriting = writing; forWriting < writing + 7; forWriting++)
+                {
+                    Console.WriteLine(allMetaForThis[m].ElementAt(forWriting));
+                }
+
+                Console.WriteLine();
+                Console.WriteLine();
+                Console.WriteLine($"Press T/t to return viewing your next {ForFilling}/s in the situation,");
+                Console.WriteLine();
+                Console.WriteLine($"Press N/n to go read the next {ForFilling} about the current {ForFilling} for this situation,");
+                Console.WriteLine($"Or P/p to go read the previous {ForFilling} about the current {ForFilling} for this situation.");
+                Console.WriteLine();
+                string metaInput = Console.ReadLine();
+                ReturnToMain(metaInput);
+                metaInput = CheckingScrolling(metaInput, false);
+
+                #region reponse to meta-cognition input
+
+                if (metaInput.ToUpper() == "T")
+                {
+                    m = allMetaForThis.Count() + 1;
+                }
+                else if (metaInput.ToUpper() == "N")
+                {
+                    if (m == allMetaForThis.Count() - 1)
+                    {
+                        Console.Clear();
+                        Console.WriteLine($"There are no more {ForFilling}s about the current {ForFilling}.");
+                        Console.WriteLine();
+                        Console.WriteLine($"Press any key to return to viewing your next {ForFilling}/s in the situation.");
+                        Console.WriteLine();
+                        Console.ReadLine();
+                        m = allMetaForThis.Count() + 1;
+                    }
+                }
+                else if (metaInput.ToUpper() == "P")
+                {
+                    if (m == 0)
+                    {
+                        Console.Clear();
+                        Console.WriteLine($"There's no previous {ForFilling} about the current {ForFilling}");
+                        Console.WriteLine();
+                        Console.WriteLine($"Press any key to return to viewing your next {ForFilling}/s in the situation.");
+                        Console.WriteLine();
+                        Console.ReadLine();
+                        m = allMetaForThis.Count() + 1;
+                    }
+                    else
+                    {
+                        m = m - 2;
+                    }
+
+                }
+
+                #endregion
+
+            }
+        }
+
         #endregion
     }
 }
