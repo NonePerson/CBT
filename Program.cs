@@ -554,6 +554,7 @@ namespace CBT
                     Console.WriteLine("Additional notes (you can leave this empty): ");
                     Console.WriteLine();
                     string notes = Console.ReadLine();
+                    ReturnToMain(notes);
                     Console.WriteLine();
                     string[] inputForMetaCognition = new string[i * 8];
                     if (File.Exists($"{situationText[1]}{forFilling}{relevantMetaCount.Value + 1}meta.txt"))
@@ -673,6 +674,7 @@ namespace CBT
                 Console.WriteLine("Additional notes (you can leave this empty): ");
                 Console.WriteLine();
                 string notes2 = Console.ReadLine();
+                ReturnToMain(notes2);
                 Console.WriteLine();
 
                 inputForMetaCognition[0 + ((i - 1) * 8)] = $"a meta-cognition ({forFilling}) about the above {forFilling}:";
@@ -885,8 +887,8 @@ namespace CBT
 
         private static void ViewingInfo(string[] BasicSituation, string[] allInfo, int infoAmount, string ForFilling, int situationNum)
         {
-          
-            #region possible usefull variables
+
+            #region usefull variables
 
             SituationElements elements = new SituationElements();
             XElement CurrectSituation = new XElement(elements.allSituations.ElementAt(situationNum - 1));
@@ -992,6 +994,12 @@ namespace CBT
                     if(i == 1)
                     {
                         Console.Clear();
+                        Console.WriteLine($"There are no previous {ForFilling}s for this situation.");
+                        Console.WriteLine();
+                        Console.WriteLine("Press any key to return to the main meun");
+                        Console.WriteLine();
+                        Console.ReadLine();
+                        Console.Clear();
                         Main();
                     }
                     else
@@ -1000,34 +1008,19 @@ namespace CBT
                         countingLines = countingLines - 16;
                     }
                 }
-                else if(nextInput.ToUpper() == "T")
+                else if(nextInput.ToUpper() == "T" && !WithoutMeta)
                 {
-                    #region meta-cognition info scroll
-
-                    if (!WithoutMeta)
-                    {
-                        ViewingMetaCognitionsForEachInfo(BasicSituation, countingLines, allInfo, allMetaForThis, ForFilling);
-                    }
-                    else
-                    {
-                        Console.Clear();
-                        Console.WriteLine("An error has occured.");
-                        Console.WriteLine("Press any key to return to the main meun");
-                        Console.ReadLine();
-                        Main();
-                    }
-
-                    #endregion
+                    ViewingMetaCognitionsForEachInfo(BasicSituation, countingLines, allInfo, allMetaForThis, ForFilling);
                 }
                 else if(nextInput.ToUpper() == "N")
                 {
                     if(i == infoAmount)
                     {
                         Console.Clear();
+                        Console.WriteLine($"You've finished going throught the {ForFilling}s of the situation:");
+                        Console.WriteLine($"{BasicSituation[1]}");
                         Console.WriteLine();
-                        Console.WriteLine($"You've finished going throught all the {ForFilling}s of the current situation.");
-                        Console.WriteLine();
-                        Console.WriteLine("Press any key to return to the main meun");
+                        Console.WriteLine("Press any key to return to the main meun.");
                         Console.WriteLine();
                         Console.ReadLine();
                         Console.Clear();
