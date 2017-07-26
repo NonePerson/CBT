@@ -1,5 +1,4 @@
 # CBT
-This is a database app. Download the full app here:
 
 First, introduction:
 
