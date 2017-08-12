@@ -13,13 +13,12 @@ This is why in CBT, there's a concept of "analyzing situations" as part of the t
 In this concept, the patient thinks about situations where his behaviour disatisfies him,
 and writes the thoughts, behaviours and feelings that arise in the situation - 
 
-and then thinks about the thoughts, writes what he feels ABOUT his feelings in the situation
-(That's called "meta-cognition" in psychology),
+and then thinks about the thoughts (That's called "meta-cognition" in psychology), writes what he feels when he is reminded of his feelings in the situation,
 and how he thinks all of that is connected to his behaviour in the situation.
 
 So this app helps you do that. You insert this information to whatever situation
 you found yourself at and are disatisfied with how you tend to behave in it,
-to help yourself change that behaviour with the "meta-cognition".
+to help yourself change that behaviour with the "meta-cognition" and so on.
 
 How to use it:
 
